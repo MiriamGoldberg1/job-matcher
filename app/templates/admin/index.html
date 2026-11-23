@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}ניהול - מחברים{% endblock %}
+{% block content %}
+<div class="admin-head">
+  <h1>ממשק נציג</h1>
+  <a href="/admin/data">מאגרים</a>
+</div>
+{% if msg %}<div class="alert ok">{{ msg }}</div>{% endif %}
+<p class="muted small" id="live">{% if running %}⏳ הרצת התאמה פעילה עכשיו. {% endif %}הדף מתעדכן אוטומטית.</p>
+
+<div class="stats">
+  <div class="card stat"><b>{{ counts.employers }}</b><span>מעסיקים</span></div>
+  <div class="card stat"><b>{{ counts.seekers }}</b><span>מחפשי עבודה</span></div>
+  <div class="card stat"><b>{{ pending|length }}</b><span>ממתינות לאישור</span></div>
+</div>
+
+<div class="card">
+  <h2>הצעות AI שממתינות לאישור</h2>
+  {% if pending %}
+  <table>
+    <tr><th>#</th><th>מעסיק</th><th>תחום</th><th>סוג</th><th>מועמדים</th><th>נוצר</th><th></th></tr>
+    {% for p in pending %}
+    <tr><td>{{ p.id }}</td><td>{{ p.employer }}</td><td>{{ p.field }}</td><td>{{ p.job_type }}</td>
+        <td>{{ p.n }}</td><td>{{ p.created_at[:16].replace('T', ' ') }}</td>
+        <td><a class="btn small" href="/admin/proposals/{{ p.id }}">לבדיקה</a></td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">אין כרגע הצעות שממתינות לאישור.</p>{% endif %}
+</div>
+
+<div class="card">
+  <h2>הרצת התאמה</h2>
+  <p class="muted">ההתאמה רצה אוטומטית כל יום בשעה {{ '%02d:%02d'|format(config.MATCH_HOUR, config.MATCH_MINUTE) }}
+     ({{ config.TIMEZONE }}){% if not config.SCHEDULER_ENABLED %} - <b>התזמון כבוי</b>{% endif %}.
+     {% if not config.MAIL_ENABLED %}<br><b>שליחת מיילים כבויה</b> (חסר MAIL_WEBHOOK_URL / MAIL_WEBHOOK_SECRET ב-.env).{% endif %}
+     {% if not config.LANGSMITH_ENABLED %}<br>תיעוד LangSmith כבוי (חסר LANGSMITH_TRACING / LANGSMITH_API_KEY).{% endif %}</p>
+  <form method="post" action="/admin/run">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <button class="btn" type="submit"{% if running %} disabled{% endif %}>{% if running %}התאמה רצה...{% else %}הרץ התאמה עכשיו{% endif %}</button>
+  </form>
+  {% if runs %}
+  <table>
+    <tr><th>#</th><th>הופעל ע"י</th><th>התחיל</th><th>סטטוס</th><th>סיכום</th></tr>
+    {% for r in runs %}
+    <tr><td>{{ r.id }}</td><td>{{ r.trigger }}</td><td>{{ r.started_at[:16].replace('T', ' ') }}</td>
+        <td>{% if r.status == 'quota' %}<b>מכסת Gemini נגמרה</b>{% else %}{{ {'done': 'הושלם', 'error': 'הסתיים עם שגיאות', 'running': 'רץ', 'interrupted': 'נקטע'}.get(r.status, r.status) }}{% endif %}</td><td>{{ r.summary }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>היסטוריית החלטות</h2>
+  {% if history %}
+  <table>
+    <tr><th>#</th><th>מעסיק</th><th>החלטה</th><th>נשלחו</th><th>נציג</th><th>מתי</th></tr>
+    {% for h in history %}
+    <tr><td><a href="/admin/proposals/{{ h.id }}">{{ h.id }}</a></td><td>{{ h.employer }}</td>
+        <td>{{ 'נשלח' if h.status == 'sent' else 'נדחה' }}</td><td>{{ h.sent }} / {{ h.n }}</td>
+        <td>{{ h.reviewed_by }}</td><td>{{ (h.reviewed_at or '')[:16].replace('T', ' ') }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">עדיין אין החלטות.</p>{% endif %}
+</div>
+<script>
+// Checks the server every few seconds and reloads the page when proposals, runs or counts change.
+(function () {
+  var version = {{ version|tojson }}, running = {{ running|tojson }};
+  function check() {
+    if (document.hidden) return;
+    fetch('/admin/state', {cache: 'no-store', credentials: 'same-origin'})
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (s) {
+        if (s && (s.version !== version || s.running !== running)) location.replace('/admin');
+      })
+      .catch(function () {});
+  }
+  setInterval(check, 5000);
+  document.addEventListener('visibilitychange', check);
+})();
+</script>
+{% endblock %}

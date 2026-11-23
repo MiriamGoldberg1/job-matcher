@@ -1,0 +1,17 @@
+{% extends "_base.html" %}
+{% block content %}
+<p>שלום {{ employer.name }},</p>
+<p>נמצאו {{ candidates|length }} מועמדים שמתאימים למשרה שפרסמתם. הנה הפרטים שלהם:</p>
+{% for c in candidates %}
+<div style="border:1px solid #e1e4e8;border-radius:6px;padding:12px;margin:12px 0;">
+  <div style="font-weight:bold;font-size:16px;">{{ c.name }}{% if c.age %} · גיל {{ c.age }}{% endif %}</div>
+  <div>טלפון: {{ c.phone }}</div>
+  <div>אימייל: <a href="mailto:{{ c.email }}" style="color:#1f5fbf;">{{ c.email }}</a></div>
+  {% if c.seeking_field %}<div>תחום מבוקש: {{ c.seeking_field }}</div>{% endif %}
+  {% if c.experience %}<div>ניסיון: {{ c.experience }}</div>{% endif %}
+  {% if c.advantages %}<div>יתרונות: {{ c.advantages }}</div>{% endif %}
+  <div style="margin-top:6px;color:#555;">למה הוא מתאים: {{ c.reason }}</div>
+</div>
+{% endfor %}
+<p>בהצלחה!</p>
+{% endblock %}

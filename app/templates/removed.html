@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card center">
+  <h1>הפרטים הוסרו</h1>
+  <p>{% if kind == "employer" %}הוסרתם ממאגר המעסיקים.{% else %}הוצאתם ממאגר העובדים.{% endif %}
+     כל הפרטים שלכם נמחקו מהמערכת.</p>
+  <a class="btn" href="/">חזרה לדף הבית</a>
+</div>
+{% endblock %}

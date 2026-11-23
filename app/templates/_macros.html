@@ -1,0 +1,34 @@
+{% macro input(name, label, v, errors, type="text", required=False, attrs="") -%}
+<label class="field{% if errors.get(name) %} has-error{% endif %}">
+  <span>{{ label }}{% if required %} <b class="req">*</b>{% endif %}</span>
+  <input type="{{ type }}" name="{{ name }}" value="{{ v.get(name, '') }}" {% if required %}required{% endif %} {{ attrs|safe }}>
+  {% if errors.get(name) %}<small class="err">{{ errors[name] }}</small>{% endif %}
+</label>
+{%- endmacro %}
+
+{% macro textarea(name, label, v, errors, required=False, hint="") -%}
+<label class="field wide{% if errors.get(name) %} has-error{% endif %}">
+  <span>{{ label }}{% if required %} <b class="req">*</b>{% endif %}</span>
+  <textarea name="{{ name }}" rows="4" maxlength="3000" {% if required %}required{% endif %} placeholder="{{ hint }}">{{ v.get(name, '') }}</textarea>
+  {% if errors.get(name) %}<small class="err">{{ errors[name] }}</small>{% endif %}
+</label>
+{%- endmacro %}
+
+{% macro select(name, label, options, v, errors) -%}
+<label class="field{% if errors.get(name) %} has-error{% endif %}">
+  <span>{{ label }} <b class="req">*</b></span>
+  <select name="{{ name }}" required>
+    <option value="">בחרו...</option>
+    {% for o in options %}<option value="{{ o }}" {% if v.get(name) == o %}selected{% endif %}>{{ o }}</option>{% endfor %}
+  </select>
+  {% if errors.get(name) %}<small class="err">{{ errors[name] }}</small>{% endif %}
+</label>
+{%- endmacro %}
+
+{% macro consent(v, errors, text) -%}
+<label class="check wide{% if errors.get('consent') %} has-error{% endif %}">
+  <input type="checkbox" name="consent" value="1" {% if v.get('consent') %}checked{% endif %} required>
+  <span>{{ text }}</span>
+  {% if errors.get('consent') %}<small class="err">{{ errors['consent'] }}</small>{% endif %}
+</label>
+{%- endmacro %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% import "_macros.html" as f %}
+{% block title %}הרשמה למאגר מחפשי עבודה - מחברים{% endblock %}
+{% block content %}
+<h1>הרשמה למאגר מחפשי עבודה</h1>
+<p class="lead">השאירו פרטים. כשנמצא משרה מתאימה, הפרטים שלכם יועברו למעסיק לאחר אישור של נציג.</p>
+{% if errors %}<div class="alert error">יש לתקן את השדות המסומנים.</div>{% endif %}
+<form method="post" class="card form-grid" novalidate>
+  <h3 class="wide">פרטי קשר</h3>
+  {{ f.input("name", "שם", v, errors, required=True) }}
+  {{ f.input("phone", "טלפון", v, errors, type="tel", required=True) }}
+  {{ f.input("email", "אימייל", v, errors, type="email", required=True) }}
+  {{ f.input("age", "גיל", v, errors, type="number", required=True, attrs='min="14" max="99"') }}
+
+  <h3 class="wide">על העבודה שאתם מחפשים</h3>
+  {{ f.textarea("seeking_field", "מחפש/ת בתחום", v, errors, required=True, hint="לדוגמה: הוראה בבית ספר יסודי, ניהול משרד...") }}
+  {{ f.textarea("experience", "ניסיון", v, errors) }}
+  {{ f.textarea("advantages", "יתרונות תעסוקתיים", v, errors) }}
+  {{ f.textarea("extra", "פרטים נוספים", v, errors) }}
+
+  {{ f.consent(v, errors, "אני מאשר/ת שמירת הפרטים במאגר והעברתם (כולל טלפון ואימייל) למעסיקים מתאימים.") }}
+  <div class="wide actions"><button type="submit" class="btn">שליחה</button></div>
+</form>
+{% endblock %}

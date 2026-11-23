@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}האזור האישי - מחברים{% endblock %}
+{% block content %}
+{% if new %}
+<div class="alert ok">
+  הפרטים נקלטו בהצלחה! שמרו את הקישור לדף הזה - דרכו אפשר להסיר את הפרטים מהמאגר בכל עת.{% if MAIL_ENABLED %} הקישור נשלח גם לאימייל שלכם.{% endif %}
+</div>
+{% endif %}
+<h1>{{ item.name }}</h1>
+<div class="card">
+  {% if kind == "employer" %}
+  <dl class="details">
+    <dt>טלפון</dt><dd>{{ item.phone }}</dd>
+    <dt>אימייל</dt><dd>{{ item.email }}</dd>
+    <dt>תחום</dt><dd>{{ item.field }}{% if item.field_other %} - {{ item.field_other }}{% endif %}</dd>
+    <dt>סוג המשרה</dt><dd>{{ item.job_type }}</dd>
+    <dt>מקום העבודה</dt><dd>{{ item.workplace }}{% if item.workplace_other %} - {{ item.workplace_other }}{% endif %}</dd>
+    <dt>טווח גילאים</dt><dd>{{ item.age_min or '-' }} עד {{ item.age_max or '-' }}</dd>
+    <dt>תיאור המשרה</dt><dd class="pre">{{ item.description }}</dd>
+    <dt>השכלה נדרשת</dt><dd class="pre">{{ item.education }}</dd>
+    <dt>ניסיון נדרש</dt><dd class="pre">{{ item.experience }}</dd>
+    <dt>פרטים נוספים</dt><dd class="pre">{{ item.extra }}</dd>
+  </dl>
+  {% else %}
+  <dl class="details">
+    <dt>טלפון</dt><dd>{{ item.phone }}</dd>
+    <dt>אימייל</dt><dd>{{ item.email }}</dd>
+    <dt>גיל</dt><dd>{{ item.age }}</dd>
+    <dt>מחפש/ת בתחום</dt><dd class="pre">{{ item.seeking_field }}</dd>
+    <dt>ניסיון</dt><dd class="pre">{{ item.experience }}</dd>
+    <dt>יתרונות תעסוקתיים</dt><dd class="pre">{{ item.advantages }}</dd>
+    <dt>פרטים נוספים</dt><dd class="pre">{{ item.extra }}</dd>
+  </dl>
+  {% endif %}
+</div>
+<form method="post" action="/manage/{{ kind }}/{{ item.token }}/delete"
+      onsubmit="return confirm('למחוק את כל הפרטים מהמאגר? לא ניתן לבטל את הפעולה.');">
+  <button class="btn danger" type="submit">
+    {% if kind == "employer" %}מחק אותי ממאגר המעסיקים{% else %}הוצא אותי ממאגר העובדים{% endif %}
+  </button>
+</form>
+{% endblock %}

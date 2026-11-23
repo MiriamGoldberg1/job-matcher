@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}הצעה #{{ p.id }} - ניהול{% endblock %}
+{% block content %}
+<div class="admin-head">
+  <h1>הצעה #{{ p.id }} - {{ employer.name }}</h1>
+  <a href="/admin">חזרה לממשק נציג</a>
+</div>
+
+<div class="card">
+  <h2>המשרה</h2>
+  <dl class="details">
+    <dt>מעסיק</dt><dd>{{ employer.name }} · {{ employer.phone }} · {{ employer.email }}</dd>
+    <dt>תחום</dt><dd>{{ employer.field }}{% if employer.field_other %} - {{ employer.field_other }}{% endif %}</dd>
+    <dt>סוג / מקום</dt><dd>{{ employer.job_type }} · {{ employer.workplace }}{% if employer.workplace_other %} - {{ employer.workplace_other }}{% endif %}</dd>
+    <dt>גילאים</dt><dd>{{ employer.age_min or '-' }} עד {{ employer.age_max or '-' }}</dd>
+    <dt>תיאור</dt><dd class="pre">{{ employer.description }}</dd>
+    <dt>השכלה נדרשת</dt><dd class="pre">{{ employer.education }}</dd>
+    <dt>ניסיון נדרש</dt><dd class="pre">{{ employer.experience }}</dd>
+    <dt>נוסף</dt><dd class="pre">{{ employer.extra }}</dd>
+  </dl>
+</div>
+
+<form method="post" class="card">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <h2>מועמדים שה-AI הציע ({{ items|length }})</h2>
+  {% if p.status != 'pending' %}
+    <div class="alert">ההצעה כבר טופלה ({{ 'נשלחה' if p.status == 'sent' else 'נדחתה' }} ע"י {{ p.reviewed_by }}).</div>
+  {% else %}
+    <p class="muted">סמנו את המועמדים שיישלחו למעסיק במייל. שום מייל לא נשלח בלי אישור שלכם.</p>
+  {% endif %}
+  {% for i in items %}
+  <label class="candidate">
+    <input type="checkbox" name="seeker_id" value="{{ i.seeker_id }}"
+           {% if p.status == 'pending' or i.approved %}checked{% endif %} {% if p.status != 'pending' %}disabled{% endif %}>
+    <div>
+      <div class="cand-head"><b>{{ i.name }}</b> · גיל {{ i.age }}
+        <span class="score {% if i.score >= 80 %}high{% endif %}">ציון התאמה {{ i.score }}</span></div>
+      <div class="reason">{{ i.reason }}</div>
+      <div class="muted small">{{ i.phone }} · {{ i.email }}</div>
+      <details><summary>פרטי המועמד</summary>
+        <dl class="details">
+          <dt>מחפש בתחום</dt><dd class="pre">{{ i.seeking_field }}</dd>
+          <dt>ניסיון</dt><dd class="pre">{{ i.experience }}</dd>
+          <dt>יתרונות</dt><dd class="pre">{{ i.advantages }}</dd>
+          <dt>נוסף</dt><dd class="pre">{{ i.extra }}</dd>
+        </dl>
+      </details>
+    </div>
+  </label>
+  {% else %}
+  <p class="muted">המועמדים שהוצעו הוסרו מהמאגר.</p>
+  {% endfor %}
+  {% if p.status == 'pending' %}
+  <div class="actions">
+    <button class="btn" name="action" value="send" type="submit">שלח למעסיק את המסומנים</button>
+    <button class="btn secondary" name="action" value="send_all" type="submit">אשר ושלח את כולם</button>
+    <button class="btn danger" name="action" value="reject" type="submit"
+            onclick="return confirm('לסגור את ההצעה בלי לשלוח מייל?');">דחה - אל תשלח</button>
+  </div>
+  {% endif %}
+</form>
+{% endblock %}

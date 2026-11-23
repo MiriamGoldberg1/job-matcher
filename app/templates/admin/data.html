@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}מאגרים - ניהול{% endblock %}
+{% block content %}
+<div class="admin-head">
+  <h1>מאגרים</h1>
+  <a href="/admin">חזרה לממשק נציג</a>
+</div>
+<div class="card scroll">
+  <h2>מעסיקים ({{ employers|length }})</h2>
+  <table>
+    <tr><th>#</th><th>שם</th><th>טלפון</th><th>אימייל</th><th>תחום</th><th>סוג</th><th>גילאים</th><th>נרשם</th></tr>
+    {% for e in employers %}
+    <tr><td>{{ e.id }}</td><td>{{ e.name }}</td><td>{{ e.phone }}</td><td>{{ e.email }}</td><td>{{ e.field }}</td>
+        <td>{{ e.job_type }}</td><td>{{ e.age_min or '-' }}–{{ e.age_max or '-' }}</td><td>{{ e.created_at[:10] }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+<div class="card scroll">
+  <h2>מחפשי עבודה ({{ seekers|length }})</h2>
+  <table>
+    <tr><th>#</th><th>שם</th><th>טלפון</th><th>אימייל</th><th>גיל</th><th>תחום מבוקש</th><th>נרשם</th></tr>
+    {% for s in seekers %}
+    <tr><td>{{ s.id }}</td><td>{{ s.name }}</td><td>{{ s.phone }}</td><td>{{ s.email }}</td><td>{{ s.age }}</td>
+        <td>{{ s.seeking_field[:60] }}</td><td>{{ s.created_at[:10] }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

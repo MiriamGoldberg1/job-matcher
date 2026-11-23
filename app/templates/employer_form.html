@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "_macros.html" as f %}
+{% block title %}פרסום משרה - מחברים{% endblock %}
+{% block content %}
+<h1>פרסום משרה</h1>
+<p class="lead">מלאו את פרטי המשרה. פעם ביום נבדוק אם יש במאגר מחפשי עבודה שמתאימים לכם.</p>
+{% if errors %}<div class="alert error">יש לתקן את השדות המסומנים.</div>{% endif %}
+<form method="post" class="card form-grid" novalidate>
+  <h3 class="wide">פרטי קשר</h3>
+  {{ f.input("name", "שם", v, errors, required=True) }}
+  {{ f.input("phone", "טלפון", v, errors, type="tel", required=True) }}
+  {{ f.input("email", "אימייל", v, errors, type="email", required=True) }}
+
+  <h3 class="wide">פרטי המשרה</h3>
+  {{ f.select("field", "תחום המשרה", FIELDS, v, errors) }}
+  {{ f.input("field_other", "אם בחרתם 'אחר' - פרטו", v, errors) }}
+  {{ f.select("job_type", "סוג המשרה", JOB_TYPES, v, errors) }}
+  {{ f.select("workplace", "תיאור מקום העבודה", WORKPLACES, v, errors) }}
+  {{ f.input("workplace_other", "אם בחרתם 'אחר' - פרטו", v, errors) }}
+
+  <div class="field{% if errors.get('age') %} has-error{% endif %}">
+    <span>טווח גילאים מבוקש</span>
+    <div class="range">
+      <input type="number" name="age_min" min="14" max="99" placeholder="מגיל" value="{{ v.get('age_min', '') }}">
+      <span>עד</span>
+      <input type="number" name="age_max" min="14" max="99" placeholder="עד גיל" value="{{ v.get('age_max', '') }}">
+    </div>
+    {% if errors.get('age') %}<small class="err">{{ errors['age'] }}</small>{% endif %}
+  </div>
+
+  {{ f.textarea("description", "תיאור המשרה", v, errors, required=True) }}
+  {{ f.textarea("education", "השכלה נדרשת", v, errors) }}
+  {{ f.textarea("experience", "ניסיון נדרש", v, errors) }}
+  {{ f.textarea("extra", "פרטים נוספים על המשרה", v, errors) }}
+
+  {{ f.consent(v, errors, "אני מאשר/ת שמירת הפרטים במאגר ושליחת עדכונים ומועמדים לאימייל שלי.") }}
+  <div class="wide actions"><button type="submit" class="btn">שליחה</button></div>
+</form>
+{% endblock %}
