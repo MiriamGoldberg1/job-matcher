@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS proposals (
     employer_id     INTEGER NOT NULL REFERENCES employers(id) ON DELETE CASCADE,
     status          TEXT NOT NULL DEFAULT 'pending',   -- pending / sent / rejected
     langsmith_run_id TEXT,
+    graph_thread_id TEXT,          -- LangGraph thread that waits at human_review for this proposal
     created_at      TEXT NOT NULL,
     reviewed_at     TEXT,
     reviewed_by     TEXT
@@ -109,5 +110,7 @@ def init_db() -> None:
         cols = {r["name"] for r in conn.execute("PRAGMA table_info(employers)")}
         if "no_match_sent_at" not in cols:  # databases created before this column existed
             conn.execute("ALTER TABLE employers ADD COLUMN no_match_sent_at TEXT")
+        if "graph_thread_id" not in {r["name"] for r in conn.execute("PRAGMA table_info(proposals)")}:
+            conn.execute("ALTER TABLE proposals ADD COLUMN graph_thread_id TEXT")
         # A run still marked 'running' at startup was cut off when the server stopped.
         conn.execute("UPDATE match_runs SET status='interrupted', finished_at=? WHERE status='running'", (now(),))

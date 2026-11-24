@@ -31,6 +31,8 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 GEMINI_CALL_DELAY = float(os.getenv("GEMINI_CALL_DELAY", "6"))
 MATCH_MIN_SCORE = int(os.getenv("MATCH_MIN_SCORE", "60"))
 MATCH_BATCH_SIZE = int(os.getenv("MATCH_BATCH_SIZE", "40"))
+# Which matching prompt the system uses (see ai.PROMPTS); chosen by the LangSmith experiments in evals/.
+MATCH_PROMPT_VERSION = os.getenv("MATCH_PROMPT_VERSION", "rubric")
 
 SCHEDULER_ENABLED = _bool("SCHEDULER_ENABLED", True)
 MATCH_HOUR = int(os.getenv("MATCH_HOUR", "8"))
